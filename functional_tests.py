@@ -33,7 +33,7 @@ class VisitorTest(unittest.TestCase):
         inputbox = self.browser.find_element(By.ID, 'id_new_item')
         self.assertEqual(
             inputbox.get_attribute('placeholder'),
-            'Enter item'
+            'Внесите данные'
         )
 
         # Вводим в текстовом поле "Говядина 100 гр"
@@ -42,13 +42,12 @@ class VisitorTest(unittest.TestCase):
         # Когда нажимаем enter, страница обновляется, и теперь страница содержит
         # "1: Говядина 100 гр" в качестве элемента списка
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
+        time.sleep(3)
 
         table = self.browser.find_element(By.ID, 'id_list_table')
-        rows = table.find_elements(BY.TAG_NAME, 'tr')
-        self.assertTrue(
-            any(row.text == '1: Говядина 100 гр' for row in rows)
-        )
+        rows = table.find_elements(By.TAG_NAME, 'tr')
+        self.assertTrue(any(row.text == '1: Говядина 100 гр' for row in rows),
+        'Новый элемент списка не появился в таблице')
         # В текстовое поле можно ввести еще продукты
         # Вводим "Картофель 200 гр"
         # Страница снова обновляется и теперь показывает оба элемента списка
