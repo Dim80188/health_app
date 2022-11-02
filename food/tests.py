@@ -22,5 +22,5 @@ class HomePageTest(TestCase):
         response = home_page(request)
         html = response.content.decode('utf8')
         self.assertTrue(html.startswith('<html>'))
-        self.assertIn('<title>Питательная ценность продуктов</title>', html)
+        self.assertIn('<title>Мой список блюд на сегодня</title>', html)
         self.assertTrue(html.endswith('</html>'))
