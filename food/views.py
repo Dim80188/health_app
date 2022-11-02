@@ -4,4 +4,4 @@ from django.http import HttpResponse
 # Create your views here.
 def home_page(request):
     '''домашняя страница'''
-    return HttpResponse('<html><title>Мой список блюд на сегодня</title></html>')
+    return render(request, 'home.html')
