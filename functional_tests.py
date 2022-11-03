@@ -17,6 +17,12 @@ class VisitorTest(unittest.TestCase):
         '''демонтаж'''
         self.browser.quit()
 
+    def check_for_row_in_list_table(self, row_text):
+        '''подтверждение строки в таблице списка'''
+        table = self.browser.find_element(By.ID, 'id_list_table')
+        rows = table.find_elements(By.TAG_NAME, 'tr')
+        self.assertIn(row_text, [row.text for row in rows])
+
     def test_can_start_a_list_and_retrieve_it_later(self):
         '''тест: можно открыть страницу и внести те продукты, которые съел сегодня и
         получить его позже'''
@@ -44,14 +50,23 @@ class VisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
         time.sleep(3)
 
-        table = self.browser.find_element(By.ID, 'id_list_table')
-        rows = table.find_elements(By.TAG_NAME, 'tr')
-        self.assertTrue(any(row.text == '1: Говядина 100 гр' for row in rows),
-        'Новый элемент списка не появился в таблице')
+        self.check_for_row_in_list_table('1: Говядина 100 гр')
         # В текстовое поле можно ввести еще продукты
         # Вводим "Картофель 200 гр"
+        inputbox = self.browser.find_element(By.ID, 'id_new_item')
+        inputbox.send_keys('Картофель 200 гр')
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(3)
         # Страница снова обновляется и теперь показывает оба элемента списка
+        self.check_for_row_in_list_table('1: Говядина 100 гр')
+        self.check_for_row_in_list_table('2: Картофель 200 гр')
+
+        # Проверяем, запомнил ли сайт список. Сайт должен сгенерировать для
+        # отдельного пользователя уникальный URL-адрес - об этом выводится
+        # небольшой текст с пояснениями
         self.fail('Закончить тест')
+
+        # Посещаем этот адрес и проверяем наличие там списка
 
 
 if __name__ == '__main__':
