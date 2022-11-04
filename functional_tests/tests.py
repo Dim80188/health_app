@@ -3,9 +3,13 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 import unittest
 import time
+
+
+MAX_WAIT = 10
 
 class NewVisitorTest(LiveServerTestCase):
     '''тест нового посетителя'''
@@ -19,15 +23,22 @@ class NewVisitorTest(LiveServerTestCase):
         '''демонтаж'''
         self.browser.quit()
 
-    def check_for_row_in_list_table(self, row_text):
-        '''подтверждение строки в таблице списка'''
-        table = self.browser.find_element(By.ID, 'id_list_table')
-        rows = table.find_elements(By.TAG_NAME, 'tr')
-        self.assertIn(row_text, [row.text for row in rows])
+    def wait_for_row_in_list_table(self, row_text):
+        '''ожидание строки в таблице списка'''
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element(By.ID, 'id_list_table')
+                rows = table.find_elements(By.TAG_NAME, 'tr')
+                self.assertIn(row_text, [row.text for row in rows])
+                return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
 
-    def test_can_start_a_list_and_retrieve_it_later(self):
-        '''тест: можно открыть страницу и внести те продукты, которые съел сегодня и
-        получить его позже'''
+    def test_can_start_a_list_for_one_user(self):
+        '''тест: можно начать список для одного пользователя'''
         # Открываем домашнюю страницу
         self.browser.get('http://localhost:8000')
 
@@ -50,18 +61,18 @@ class NewVisitorTest(LiveServerTestCase):
         # Когда нажимаем enter, страница обновляется, и теперь страница содержит
         # "1: Говядина 100 гр" в качестве элемента списка
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(3)
+        
 
-        self.check_for_row_in_list_table('1: Говядина 100 гр')
+        self.wait_for_row_in_list_table('1: Говядина 100 гр')
         # В текстовое поле можно ввести еще продукты
         # Вводим "Картофель 200 гр"
         inputbox = self.browser.find_element(By.ID, 'id_new_item')
         inputbox.send_keys('Картофель 200 гр')
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(3)
+
         # Страница снова обновляется и теперь показывает оба элемента списка
-        self.check_for_row_in_list_table('1: Говядина 100 гр')
-        self.check_for_row_in_list_table('2: Картофель 200 гр')
+        self.wait_for_row_in_list_table('1: Говядина 100 гр')
+        self.wait_for_row_in_list_table('2: Картофель 200 гр')
 
         # Проверяем, запомнил ли сайт список. Сайт должен сгенерировать для
         # отдельного пользователя уникальный URL-адрес - об этом выводится
@@ -69,6 +80,49 @@ class NewVisitorTest(LiveServerTestCase):
         self.fail('Закончить тест')
 
         # Посещаем этот адрес и проверяем наличие там списка
+
+    def test_multiple_users_can_start_lists_at_different_urls(self):
+        '''тест: многочисленные пользователи могут начать списки по разным url'''
+        # user_1 начинает новый список
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element(By.ID, 'id_new_item')
+        inputbox.send_keys('Курица 200 гр')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Курица 200 гр')
+
+        # user_1 замечает, что его список имеет уникальный URL-адрес
+        user_1_list_url = self.browser.current_url
+        self.assertRegex(user_1_list_url, '/lists/.+')
+
+        # user_2 приходит на сайт
+        # Используем новый сеанс браузера, тем самым обеспечивая, чтобы никакая
+        # информация от user_1 не прошла через данные cookie и пр
+        self.browser.quit()
+        self.browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+
+        # user_2 посещает домашнюю страницу. Нет никаких признаков списка user_1
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element(By.TAG_NAME, 'body').text
+        self.assertNotIn('Говядина 100 гр', page_text)
+        self.assertNotIn('Картофель 200 гр', page_text)
+        self.assertNotIn('Курица 200 гр', page_text)
+
+        # user_2 начинает новый список, вводя новый элемент
+        inputbox = self.browser.find_element(By.ID, 'id_new_item')
+        inputbox.send_keys('Молоко 1 л')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Молоко 1 л')
+
+        # user_2 получает уникальный URL-адрес
+        user_2_list_url = self.browser.current_url
+        self.assertRegex(user_2_list_url, '/lists/.+')
+        self.assertNotEqual(user_1_list_url, user_2_list_url)
+
+        # Нет ни намека на список user_1
+        page_text = self.browser.find_element(By.TAG_NAME, 'body').text
+        self.assertNotIn('Говядина 100 гр', page_text)
+        self.assertIn('Молоко 1 л', page_text)
+
 
 
 if __name__ == '__main__':
