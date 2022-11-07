@@ -4,7 +4,7 @@
   </head>
   <body>
     <h1>Начать новый список блюд на сегодня</h1>
-    <form method="POST">
+    <form method="POST", action="/lists/new">
       <input id="id_new_item" placeholder="Внесите данные" name="item_text"/>
       {% csrf_token %}
     </form>
