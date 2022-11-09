@@ -1,9 +1,9 @@
 <html>
   <head>
-    <title>Мой список блюд на сегодня</title>
+    <title>My food-list tomorrow</title>
   </head>
   <body>
-    <h1>Начать новый список блюд на сегодня</h1>
+    <h1>My food-list</h1>
     <form method="POST", action="/lists/new">
       <input id="id_new_item" placeholder="Внесите данные" name="item_text"/>
       {% csrf_token %}

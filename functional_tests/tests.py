@@ -43,9 +43,9 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser.get('http://localhost:8000')
 
         # В заголовке и шапке страницы указано, что здесь можно записать рацион за сегодня
-        self.assertIn('Мой список блюд на сегодня', self.browser.title)
+        self.assertIn('My food-list tomorrow', self.browser.title)
         header_text = self.browser.find_element(By.TAG_NAME, 'h1').text
-        self.assertIn('Мой список блюд на сегодня', header_text)
+        self.assertIn('My food-list', header_text)
 
 
         # Предлагается ввести элемент списка продуктов
@@ -54,14 +54,14 @@ class NewVisitorTest(LiveServerTestCase):
             inputbox.get_attribute('placeholder'),
             'Внесите данные'
         )
-
+    #
         # Вводим в текстовом поле "Говядина 100 гр"
         inputbox.send_keys('Говядина 100 гр')
 
         # Когда нажимаем enter, страница обновляется, и теперь страница содержит
         # "1: Говядина 100 гр" в качестве элемента списка
         inputbox.send_keys(Keys.ENTER)
-        
+
 
         self.wait_for_row_in_list_table('1: Говядина 100 гр')
         # В текстовое поле можно ввести еще продукты
