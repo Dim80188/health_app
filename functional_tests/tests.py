@@ -1,4 +1,4 @@
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
@@ -11,7 +11,7 @@ import time
 
 MAX_WAIT = 10
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
     '''тест нового посетителя'''
 
     def setUp(self):
@@ -143,7 +143,7 @@ class NewVisitorTest(LiveServerTestCase):
         self.wait_for_row_in_list_table('1: testing')
         inputbox = self.browser.find_element(By.ID, 'id_new_item')
         self.assertAlmostEqual(
-            inputbox.location['x'] + inputbox.size['width'] / 2, 498, delta=10
+            inputbox.location['x'] + inputbox.size['width'] / 2, 109, delta=10
         )
 
 
