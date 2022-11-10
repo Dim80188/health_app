@@ -45,7 +45,7 @@ class NewVisitorTest(LiveServerTestCase):
         # В заголовке и шапке страницы указано, что здесь можно записать рацион за сегодня
         self.assertIn('My food-list tomorrow', self.browser.title)
         header_text = self.browser.find_element(By.TAG_NAME, 'h1').text
-        self.assertIn('My food-list', header_text)
+        self.assertIn('Your food_list', header_text)
 
 
         # Предлагается ввести элемент списка продуктов
