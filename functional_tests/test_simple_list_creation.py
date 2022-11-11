@@ -8,35 +8,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 import unittest
 from unittest import skip
 import time
+from .base import FunctionalTest
 
 
-MAX_WAIT = 10
 
-class FunctionalTest(StaticLiveServerTestCase):
-    '''тест нового посетителя'''
-
-    def setUp(self):
-        '''установка'''
-        self.browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-        self.browser.get(self.live_server_url)
-
-    def tearDown(self):
-        '''демонтаж'''
-        self.browser.quit()
-
-    def wait_for_row_in_list_table(self, row_text):
-        '''ожидание строки в таблице списка'''
-        start_time = time.time()
-        while True:
-            try:
-                table = self.browser.find_element(By.ID, 'id_list_table')
-                rows = table.find_elements(By.TAG_NAME, 'tr')
-                self.assertIn(row_text, [row.text for row in rows])
-                return
-            except (AssertionError, WebDriverException) as e:
-                if time.time() - start_time > MAX_WAIT:
-                    raise e
-                time.sleep(0.5)
 
 class NewVisitorTest(FunctionalTest):
     '''тест нового посетителя'''
@@ -126,53 +101,3 @@ class NewVisitorTest(FunctionalTest):
         page_text = self.browser.find_element(By.TAG_NAME, 'body').text
         self.assertNotIn('Говядина 100 гр', page_text)
         self.assertIn('Молоко 1 л', page_text)
-
-class LayoutAndStylingTest(FunctionalTest):
-    '''тест макета и стилевого оформления'''
-
-    def test_layout_and_styling(self):
-        '''тест макета и стилевого оформления'''
-        # пользователь открывает домашнюю страницу
-        self.browser.get(self.live_server_url)
-        self.browser.set_window_size(1024, 768)
-
-        # он замечает, что поле ввода аккуратно центрировано
-        inputbox = self.browser.find_element(By.ID, 'id_new_item')
-        self.assertAlmostEqual(
-            inputbox.location['x'] + inputbox.size['width'] / 2, 100, delta = 10
-        )
-
-        # он начинает новый список и видит, что поле ввода там тоже
-        # аккуратно центрировано
-
-        inputbox.send_keys('testing')
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: testing')
-        inputbox = self.browser.find_element(By.ID, 'id_new_item')
-        self.assertAlmostEqual(
-            inputbox.location['x'] + inputbox.size['width'] / 2, 100, delta=10
-        )
-
-class ItemValidationTest(FunctionalTest):
-    '''тест валидации элемента списка'''
-    @skip
-    def test_cannot_add_empty_list_items(self):
-        '''тест: нельзя добавлять пустые элементы списка'''
-        # Пользователь открывает домашнюю страницу и случайно пытается отправить
-        # пустой элемент списка. Он нажимает Enter на пустом поле ввода
-        #
-        # Домашняя страница обновляется, и появляется сообщение об ошибке,
-        # которое говорит, что элементы списка не должны быть пустыми
-        #
-        # Он пробует снова, теперь с неким текстом для элемента, и теперь это срабатывает
-        #
-        # Как ни странно, пользователь решает отправить второй пустой элемент списка
-        #
-        # Он получает аналогичное предупреждение на странице списка
-        #
-        # И он может его исправить, заполнив поле неким текстом
-
-
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
