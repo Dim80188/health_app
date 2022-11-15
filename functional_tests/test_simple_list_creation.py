@@ -24,7 +24,8 @@ class NewVisitorTest(FunctionalTest):
         # В заголовке и шапке страницы указано, что здесь можно записать рацион за сегодня
         self.assertIn('My food-list tomorrow', self.browser.title)
         header_text = self.browser.find_element(By.TAG_NAME, 'h1').text
-        self.assertIn('Your food_list', header_text)
+
+        self.assertEqual('Start a new food_list', header_text)
 
 
         # Предлагается ввести элемент списка продуктов
@@ -56,7 +57,7 @@ class NewVisitorTest(FunctionalTest):
         # Проверяем, запомнил ли сайт список. Сайт должен сгенерировать для
         # отдельного пользователя уникальный URL-адрес - об этом выводится
         # небольшой текст с пояснениями
-        self.fail('Закончить тест')
+
 
         # Посещаем этот адрес и проверяем наличие там списка
 
