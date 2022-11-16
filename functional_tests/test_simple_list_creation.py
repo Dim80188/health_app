@@ -32,7 +32,7 @@ class NewVisitorTest(FunctionalTest):
         inputbox = self.browser.find_element(By.ID, 'id_new_item')
         self.assertEqual(
             inputbox.get_attribute('placeholder'),
-            'Внесите данные'
+            'Enter data'
         )
     #
         # Вводим в текстовом поле "Говядина 100 гр"
