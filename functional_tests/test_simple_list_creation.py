@@ -29,7 +29,7 @@ class NewVisitorTest(FunctionalTest):
 
 
         # Предлагается ввести элемент списка продуктов
-        inputbox = self.browser.find_element(By.ID, 'id_new_item')
+        inputbox = self.get_item_input_box()
         self.assertEqual(
             inputbox.get_attribute('placeholder'),
             'Enter data'
@@ -46,7 +46,7 @@ class NewVisitorTest(FunctionalTest):
         self.wait_for_row_in_list_table('1: Говядина 100 гр')
         # В текстовое поле можно ввести еще продукты
         # Вводим "Картофель 200 гр"
-        inputbox = self.browser.find_element(By.ID, 'id_new_item')
+        inputbox = self.get_item_input_box()
         inputbox.send_keys('Картофель 200 гр')
         inputbox.send_keys(Keys.ENTER)
 
@@ -65,7 +65,7 @@ class NewVisitorTest(FunctionalTest):
         '''тест: многочисленные пользователи могут начать списки по разным url'''
         # user_1 начинает новый список
         self.browser.get(self.live_server_url)
-        inputbox = self.browser.find_element(By.ID, 'id_new_item')
+        inputbox = self.get_item_input_box()
         inputbox.send_keys('Курица 200 гр')
         inputbox.send_keys(Keys.ENTER)
         self.wait_for_row_in_list_table('1: Курица 200 гр')
@@ -88,7 +88,7 @@ class NewVisitorTest(FunctionalTest):
         self.assertNotIn('Курица 200 гр', page_text)
 
         # user_2 начинает новый список, вводя новый элемент
-        inputbox = self.browser.find_element(By.ID, 'id_new_item')
+        inputbox = self.get_item_input_box()
         inputbox.send_keys('Молоко 1 л')
         inputbox.send_keys(Keys.ENTER)
         self.wait_for_row_in_list_table('1: Молоко 1 л')
