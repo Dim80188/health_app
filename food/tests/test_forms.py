@@ -1,6 +1,7 @@
 from django.test import TestCase
 from food.forms import ItemForm
 from food.forms import EMPTY_ITEM_ERROR, ItemForm
+from food.models import Item, List
 
 class ItemFormTest(TestCase):
     '''тест формы для элемента списка'''
@@ -25,3 +26,12 @@ class ItemFormTest(TestCase):
             form.errors['text'],
             [EMPTY_ITEM_ERROR]
         )
+
+    def test_form_save_handles_saving_to_a_list(self):
+        '''тест: метод save формы обрабатывает сохранение в список'''
+        list_ = List.objects.create()
+        form = ItemForm(data={'text': 'do me'})
+        new_item = form.save(for_list=list_)
+        self.assertEqual(new_item, Item.objects.first())
+        self.assertEqual(new_item.text, 'do me')
+        self.assertEqual(new_item.list, list_)
