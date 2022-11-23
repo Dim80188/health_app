@@ -25,7 +25,7 @@ class LayoutAndStylingTest(FunctionalTest):
         # он замечает, что поле ввода аккуратно центрировано
         inputbox = self.get_item_input_box()
         self.assertAlmostEqual(
-            inputbox.location['x'] + inputbox.size['width'] / 2, 100, delta = 10
+            inputbox.location['x'] + inputbox.size['width'] / 2, 490, delta = 10
         )
 
         # он начинает новый список и видит, что поле ввода там тоже
