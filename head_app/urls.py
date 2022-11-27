@@ -23,4 +23,5 @@ urlpatterns = [
     path('', food_views.home_page, name='home'),
     path('lists/', include(food_urls)),
 
+
 ]
