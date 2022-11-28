@@ -17,11 +17,13 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 from food import views as food_views
 from food import urls as food_urls
+from accounts import urls as accounts_urls
 
 urlpatterns = [
 
     path('', food_views.home_page, name='home'),
     path('lists/', include(food_urls)),
+    path('accounts/', include(accounts_urls)),
 
 
 ]
